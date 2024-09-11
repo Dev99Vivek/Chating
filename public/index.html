@@ -39,7 +39,7 @@
     const sendButton = document.getElementById('sendButton');
 
     // Update this to your deployed WebSocket URL
-    const ws = new WebSocket('wss://chating-theta.vercel.app/'); 
+     const ws = new WebSocket('ws://localhost:3000');
 
     ws.addEventListener('open', () => {
       console.log('WebSocket connection established.');

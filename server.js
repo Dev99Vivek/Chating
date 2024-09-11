@@ -1,3 +1,4 @@
+// server.js
 const WebSocket = require('ws');
 const http = require('http');
 const express = require('express');
@@ -7,8 +8,10 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+// Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
+// WebSocket connection handling
 wss.on('connection', (ws) => {
   console.log('Client connected');
 

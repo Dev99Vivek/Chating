@@ -336,3 +336,30 @@ a:active {
   background: linear-gradient(45deg, #03e9f4, #121212);
 }
 
+
+
+#chatLink {
+  flex-grow: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 20px;
+  margin-right: 10px;
+  background: #3a3a3a;
+  color: #e0e0e0;
+}
+
+#generateLink {
+  background: #3bff3b;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 16px;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+#generateLink:hover {
+  background: #32c432;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+

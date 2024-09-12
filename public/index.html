@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="./download.png" />
   <link rel="stylesheet" href="style.css">
-  <title>Chating Place</title>
+  <title>Chat Place</title>
 </head>
 <body>
   <header>
@@ -15,10 +15,11 @@
         <span></span>
         <span></span>
         <span></span>
-        Chating Place
+        Chat Place
       </a>
     </div>
   </header>
+
   <div class="chat-container">
     <div class="messages-container" id="messages"></div>
     <div class="message-input-container">
@@ -31,15 +32,41 @@
         Send
       </a>
     </div>
+    <div class="chat-link-container">
+      <input type="text" id="chatLink" readonly placeholder="Chat Link">
+      <button id="generateLink">Generate Link</button>
+    </div>
   </div>
 
   <script>
     const messagesDiv = document.getElementById('messages');
     const messageInput = document.getElementById('messageInput');
     const sendButton = document.getElementById('sendButton');
+    const chatLinkInput = document.getElementById('chatLink');
+    const generateLinkButton = document.getElementById('generateLink');
 
-    // Update this to your deployed WebSocket URL
-     const ws = new WebSocket('ws://localhost:3000');
+    // Generate a unique chat ID
+    function generateChatId() {
+      return Math.random().toString(36).substring(2, 15);
+    }
+
+    // Store token and chatId mapping in localStorage
+    function storeChatMapping(token, chatId) {
+      localStorage.setItem(token, chatId);
+    }
+
+    // Retrieve chatId based on token from localStorage
+    function getChatIdFromToken(token) {
+      return localStorage.getItem(token);
+    }
+
+    // Get or generate chat ID and initialize WebSocket
+    let chatId = new URLSearchParams(window.location.search).get('chatId');
+    if (!chatId) {
+      chatId = generateChatId();
+      storeChatMapping(chatId, chatId);
+    }
+    const ws = new WebSocket(`wss://chating-theta.vercel.app/chat?chatId=${chatId}`);
 
     ws.addEventListener('open', () => {
       console.log('WebSocket connection established.');
@@ -63,6 +90,17 @@
       }
     });
 
+    generateLinkButton.addEventListener('click', () => {
+      // Generate a unique token
+      const token = generateChatId();
+      // Create a custom URL with the token
+      const customUrl = `${window.location.origin}/chat/${token}`;
+      // Display the URL to the user
+      chatLinkInput.value = customUrl;
+      // Store the mapping of token to chatId
+      storeChatMapping(token, chatId);
+    });
+
     function displayMessage(message, isSender = false) {
       const messageContainer = document.createElement('div');
       const messageElement = document.createElement('div');
@@ -81,6 +119,28 @@
       messagesDiv.appendChild(messageContainer);
 
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // Handle the case where the user arrives via a custom URL
+    const pathParts = window.location.pathname.split('/');
+    const customToken = pathParts[2];
+    if (customToken) {
+      const actualChatId = getChatIdFromToken(customToken);
+      if (actualChatId) {
+        const ws = new WebSocket(`wss://chating-theta.vercel.app/chat?chatId=${actualChatId}`);
+        ws.addEventListener('open', () => {
+          console.log('WebSocket connection established.');
+        });
+        ws.addEventListener('error', (error) => {
+          console.error('WebSocket error:', error.message);
+        });
+        ws.addEventListener('message', (event) => {
+          const message = event.data;
+          displayMessage(message);
+        });
+      } else {
+        console.error('Invalid chat token.');
+      }
     }
   </script>
 </body>
